@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>随机数生成</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <h1>您的唯一随机数：</h1>
+    <div id="result" style="font-size: 48px; color: #2196F3;"></div>
+    <div id="usedNumbers" style="margin-top: 20px;"></div>
+
+    <script>
+        // 从本地存储获取已使用的数字
+        let usedNumbers = JSON.parse(localStorage.getItem('usedNumbers')) || [];
+        
+        function generateUniqueRandom() {
+            // 如果所有数字都已使用，重置
+            if (usedNumbers.length >= 50) {
+                usedNumbers = [];
+                localStorage.setItem('usedNumbers', JSON.stringify(usedNumbers));
+                alert("所有数字已使用完，已重置！");
+            }
+            
+            // 生成可用数字数组
+            let availableNumbers = [];
+            for (let i = 1; i <= 50; i++) {
+                if (!usedNumbers.includes(i)) {
+                    availableNumbers.push(i);
+                }
+            }
+            
+            // 随机选择一个
+            if (availableNumbers.length > 0) {
+                const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+                const selectedNumber = availableNumbers[randomIndex];
+                
+                // 添加到已使用列表
+                usedNumbers.push(selectedNumber);
+                localStorage.setItem('usedNumbers', JSON.stringify(usedNumbers));
+                
+                // 显示结果
+                document.getElementById('result').textContent = selectedNumber;
+                updateUsedNumbersDisplay();
+                
+                return selectedNumber;
+            }
+            
+            return null;
+        }
+        
+        function updateUsedNumbersDisplay() {
+            const display = document.getElementById('usedNumbers');
+            display.innerHTML = `<strong>已使用的数字 (${usedNumbers.length}/50):</strong><br>${usedNumbers.sort((a, b) => a - b).join(', ')}`;
+        }
+        
+        function resetNumbers() {
+            usedNumbers = [];
+            localStorage.setItem('usedNumbers', JSON.stringify(usedNumbers));
+            document.getElementById('result').textContent = '已重置';
+            updateUsedNumbersDisplay();
+        }
+        
+        // 页面加载时生成随机数
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('reset')) {
+                resetNumbers();
+            } else {
+                generateUniqueRandom();
+                updateUsedNumbersDisplay();
+            }
+        };
+    </script>
+    
+    <div style="margin-top: 30px;">
+        <button onclick="generateUniqueRandom()">再生成一个</button>
+        <button onclick="resetNumbers()" style="margin-left: 10px; background-color: #f44336; color: white;">重置所有数字</button>
+    </div>
+</body>
+</html>
